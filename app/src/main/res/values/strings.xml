@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">sqlrequery</string>
+    <string name="app_name">Class Netflix</string>
+    <string name="title">🎬 WHO WATCHED WHAT?</string>
+    <string name="add_student">Add student</string>
+    <string name="add_movie">Add movie</string>
+    <string name="add_watching">Add watching</string>
 </resources>
