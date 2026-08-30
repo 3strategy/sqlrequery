@@ -12,6 +12,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
 import com.example.sqlrequery.databinding.ActivityMainBinding;
 import com.example.sqlrequery.model.Movie;
 import com.example.sqlrequery.model.MovieEntity;
@@ -30,7 +33,7 @@ import io.requery.query.Tuple;
 import io.requery.sql.EntityDataStore;
 
 /**
- * The demo's only screen: three insert dialogs followed by one typed INNER JOIN result.
+ * The demo's only screen: three insert dialogs and a deletable RecyclerView of typed join results.
  *
  * <p>{@link ActivityMainBinding} is generated from {@code activity_main.xml}, so every XML view is
  * accessed through View Binding rather than {@code findViewById}. Database calls stay direct and
@@ -43,6 +46,9 @@ public class MainActivity extends Activity {
 
     /** The Requery store used directly by this one Activity. */
     private EntityDataStore<Persistable> data;
+
+    /** Connects typed join tuples to the reusable views in the RecyclerView. */
+    private WatchAdapter adapter;
 
     /**
      * Inflates the bound layout, opens and seeds SQLite, wires the buttons, and displays the join.
@@ -58,6 +64,12 @@ public class MainActivity extends Activity {
         data = Database.open(this);
         Database.seedIfEmpty(data);
 
+        adapter = new WatchAdapter(this::deleteWatching);
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        binding.recyclerView.addItemDecoration(
+                new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        binding.recyclerView.setAdapter(adapter);
+
         binding.buttonAddStudent.setOnClickListener(v -> showAddStudent());
         binding.buttonAddMovie.setOnClickListener(v -> showAddMovie());
         binding.buttonAddWatching.setOnClickListener(v -> showAddWatching());
@@ -65,7 +77,7 @@ public class MainActivity extends Activity {
     }
 
     /**
-     * Runs the ORM equivalent of the lesson's two SQL {@code INNER JOIN}s and prints every tuple.
+     * Runs the ORM equivalent of the lesson's two SQL {@code INNER JOIN}s and displays every tuple.
      *
      * <pre>{@code
      * SELECT s.name, m.title, w.rating
@@ -75,29 +87,39 @@ public class MainActivity extends Activity {
      * }</pre>
      *
      * <p>{@code StudentEntity.NAME}, {@code WatchingEntity.STUDENT_ID}, and the other expressions
-     * are generated typed attributes—not hand-written table or column-name strings. Selecting three
+     * are generated typed attributes—not hand-written table or column-name strings. Selecting these
      * expressions produces a {@link Tuple}; each value is retrieved with the same typed expression
-     * that selected it. The try-with-resources block closes Requery's {@link Result} cursor.</p>
+     * that selected it. Two additional selected IDs are the composite key used by Delete; they are
+     * not shown to the user. The try-with-resources block closes Requery's {@link Result} cursor.</p>
      */
     private void showWatchings() {
-        StringBuilder text = new StringBuilder("STUDENT  |  MOVIE  |  RATING\n\n");
-
         // The typed Requery equivalent of the SQL INNER JOIN in README.md.
         try (Result<Tuple> rows = data
-                .select(StudentEntity.NAME, MovieEntity.TITLE, WatchingEntity.RATING)
+                .select(StudentEntity.NAME, MovieEntity.TITLE, WatchingEntity.RATING,
+                        WatchingEntity.STUDENT_ID, WatchingEntity.MOVIE_ID)
                 .from(Student.class)
                 .join(Watching.class).on(WatchingEntity.STUDENT_ID.eq(StudentEntity.ID))
                 .join(Movie.class).on(MovieEntity.ID.eq(WatchingEntity.MOVIE_ID))
                 .orderBy(StudentEntity.ID, MovieEntity.ID)
                 .get()) {
-            for (Tuple row : rows) {
-                text.append(row.get(StudentEntity.NAME)).append("  |  ")
-                        .append(row.get(MovieEntity.TITLE)).append("  |  ")
-                        .append(row.get(WatchingEntity.RATING)).append('\n');
-            }
+            adapter.setRows(rows.toList());
         }
+    }
 
-        binding.results.setText(text);
+    /**
+     * Deletes the clicked Watching relationship and immediately reruns the join.
+     *
+     * <p>The tuple carries {@code studentId} and {@code movieId} even though RecyclerView displays
+     * only the student's name, movie title, and rating. Together the two IDs uniquely identify the
+     * association row.</p>
+     *
+     * @param row join tuple represented by the clicked RecyclerView row
+     */
+    private void deleteWatching(Tuple row) {
+        Database.deleteWatching(data,
+                row.get(WatchingEntity.STUDENT_ID), row.get(WatchingEntity.MOVIE_ID));
+        showWatchings();
+        toast("Watching deleted");
     }
 
     /** Shows a one-field modal and inserts a Student when its name is non-empty. */

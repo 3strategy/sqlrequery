@@ -4,4 +4,10 @@
     <string name="add_student">Add student</string>
     <string name="add_movie">Add movie</string>
     <string name="add_watching">Add watching</string>
+    <string name="column_student">Student</string>
+    <string name="column_movie">Movie</string>
+    <string name="column_rating">Rating</string>
+    <string name="column_action">Action</string>
+    <string name="delete">Delete</string>
+    <string name="rating_value">%1$d</string>
 </resources>

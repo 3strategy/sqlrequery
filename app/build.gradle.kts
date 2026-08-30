@@ -27,6 +27,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.recyclerview:recyclerview:1.4.0")
     implementation("io.requery:requery:1.6.0")
     implementation("io.requery:requery-android:1.6.0")
     annotationProcessor("io.requery:requery-processor:1.6.0")
