@@ -1,4 +1,67 @@
-# Class Netflix: Android + Requery + SQLite
+# Class Netflix · Android database teaching sample
+
+**Java · XML · View Binding · SQLite · Requery · RecyclerView**
+
+A small, runnable example by **Guy Siedes (3strategy)** for teaching how Java
+entities become SQLite tables, how relationships carry their own data, and how
+a typed JOIN becomes a list on an Android screen.
+
+[Four-part Hebrew tutorial](https://xn--5dbqnj.xn--eebf2b.com/android/sqlite/)
+· [MIT license](LICENSE)
+
+<img src="docs/images/class-netflix.png" alt="Class Netflix showing students, movies, ratings, and delete buttons" width="340">
+
+## What you can learn
+
+- Define Student, Movie, and Watching entities with generated typed attributes.
+- Model a many-to-many relationship whose junction table also stores a rating.
+- Read the same relationship as SQL and as a typed Requery INNER JOIN.
+- Add students, movies, and ratings through simple dialogs.
+- Bind joined results to a RecyclerView and delete one relationship using its
+  composite key, preserving the student and movie.
+
+This is a focused Requery lesson. Database operations are deliberately direct
+and synchronous so their path remains visible; it is not a production threading
+or architecture template. The app supports create, read, and relationship
+deletion; it does not include editing existing records.
+
+## Build and run
+
+1. Open this repository in Android Studio with support for its checked-in
+   Android Gradle Plugin version (see `gradle/libs.versions.toml`).
+2. Use Android Studio's bundled JDK; this release was checked with JBR 25.
+3. Install **Android SDK Platform 37** and let Gradle sync.
+4. Run `app` on Android **12 / API 31 or newer**.
+
+The Java source language level is 11; the JDK used to run Gradle is separate.
+Keep the checked-in Gradle wrapper and version catalog.
+
+```powershell
+$env:JAVA_HOME = 'C:/Program Files/Android/Android Studio/jbr'
+./gradlew.bat :app:assembleDebug :app:lintDebug
+```
+
+On macOS/Linux, set `JAVA_HOME` to a compatible JDK and run
+`./gradlew :app:assembleDebug :app:lintDebug`.
+
+The debug APK is `app/build/outputs/apk/debug/app-debug.apk`.
+No Firebase configuration, account, or network permission is needed. The first
+launch seeds fictional students and example movie titles into a local database.
+
+## Follow the lessons
+
+| Lesson | Working result |
+| --- | --- |
+| 1 · Student entity | A generated entity and a local SQLite table |
+| 2 · Rated relationship | Students and movies linked through Watching |
+| 3 · JOIN and inserts | Joined rows and three add dialogs |
+| 4 · RecyclerView and deletion | A reusable row with targeted relationship deletion |
+
+This repository is the completed reference. If you follow the lessons manually,
+build your own incremental project alongside it.
+
+## Understand the code
+
 
 ## 1. The three tables
 
@@ -93,3 +156,10 @@ This project and the manual tutorial twin intentionally share `com.example.sqlre
 `class-netflix.db` file, and schema version 2. Installing either APK replaces the other's code but
 keeps that shared app data; using an older schema version afterward would be an unsupported SQLite
 downgrade.
+
+
+## Validation and reuse
+
+See [release validation](docs/VALIDATION.md) for checks and limitations.
+Application code and project documentation are available under the [MIT license](LICENSE).
+Dependencies retain their own licenses; see [third-party notices](THIRD_PARTY_NOTICES.md).

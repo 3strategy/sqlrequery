@@ -13,3 +13,9 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Local IDE state and signing material are not release inputs.
+/.idea/
+*.jks
+*.keystore
+keystore.properties
